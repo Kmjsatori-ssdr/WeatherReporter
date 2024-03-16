@@ -1,7 +1,6 @@
 import requests
 import tkinter as tk
-import json
-import re
+from tkinter import messagebox
 
 '''
 一开始想要使用的免费API：
@@ -34,39 +33,42 @@ def require_weather_data(city):
         return lives
 
 
-if __name__ == "__main__":
+def main():
     root = tk.Tk()  # 创建一个主窗口
     root.title("WeatherReporter")  # 设置窗口标题
-    root.geometry("640x480")  # 宽度x高度，设置窗口大小
-    label = tk.Label(root, text="请输入你需要查询天气的城市名称：")  # 添加一个标签
+    root.geometry("640x480")  # 设置窗口大小
+
+    label = tk.Label(root, text="请输入你需要查询天气的城市名称：\n（暂只支持中国大陆的城市及港澳）",font=('黑体',16))
     label.pack()
-    entry = tk.Entry()  # 添加一个文本框
+
+    entry = tk.Entry(root,font=('黑体',16))
     entry.pack()
 
-
-    # 添加一个按钮
     def on_button_click():
         city_name = entry.get()
         try:
             weather_data = require_weather_data(city_name)
-            if isinstance(weather_data,str):
-                message.config(text=weather_data)
+            if isinstance(weather_data, str):
+                raise Exception(weather_data)
             elif not weather_data:
-                raise Exception("发生错误：天气数据返回失败！请检查输入城市名是否为数字。")
+                raise Exception("发生错误：天气数据返回失败！请不要输入数字。")
             else:
-                message.config(text="{0}（省）{1}实时天气：{2}，气温{3}摄氏度\n{4}风{5}级，空气湿度{6}%\n更新时间：{7}"
+                message.config(text="{0}（省）{1}\n实时天气：{2}\n气温：{3}摄氏度\n{4}风{5}级\n相对湿度：{6}%\n更新时间：{7}"
                                .format(weather_data["province"], weather_data["city"], weather_data["weather"],
-                                       weather_data["temperature_float"], weather_data["winddirection"],
+                                       weather_data["temperature"], weather_data["winddirection"],
                                        weather_data["windpower"],
-                                       weather_data["humidity_float"], weather_data["reporttime"]))
+                                       weather_data["humidity"], weather_data["reporttime"]))
         except Exception as e:
-            message.config(text=str(e))
-        else:
-            pass
+            messagebox.showerror("未知错误：", str(e))  # 使用messagebox显示错误
 
+    button = tk.Button(root, text="确认", command=on_button_click,font=('黑体',12))
+    button.pack()
 
-    button = tk.Button(root, text="确认", command=on_button_click)
-    button.pack()  # 使用pack()方法将按钮添加到主窗口
-    message = tk.Message(root)
+    message = tk.Message(root,font=('黑体',24))
     message.pack()
-    root.mainloop()  # 进入主循环，等待用户操作
+
+    root.mainloop()  # 进入主循环
+
+
+if __name__ == "__main__":
+    main()
